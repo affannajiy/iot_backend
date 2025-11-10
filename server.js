@@ -1,13 +1,11 @@
 import express from 'express';
-
+import cors from 'cors';
 import { fetchAndStoreISS, fetchLatest } from './fetch-iss.js';
-
 
 const app = express();
 const port = 3000;
 
-
-app.use(express.static('public')); // Serve static files
+app.use(express.static('public'), cors()); // Serve static files
 
 app.get('/', (req, res) => {
   res.send("Express server Running!")
@@ -19,7 +17,7 @@ setInterval(async () => {
   running = true;
   try { 
     const {data, change} = await fetchAndStoreISS(); 
-    console.log(`Data: ${data}`)
+    console.log(`Data: ${JSON.stringify(data)}`)
     console.log(`Change: ${change}`)
   } catch (err) {
     console.log(`Error: ${err}`)
@@ -31,8 +29,8 @@ setInterval(async () => {
 
 app.get('/latestdata', async (req, res) => {
   try {
-    const {last_row} = await fetchLatest();
-    res.json({last_row}); // Send newest location data & change to frontend
+    const {last_row,change} = await fetchLatest();
+    res.json({last_row, change}); // Send newest location data & change to frontend
   } catch (err) {
     console.log(err)
   }
